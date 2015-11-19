@@ -34,6 +34,7 @@ case class AnagramMatch(id: Int,
                         tweet2Id: UUID,
                         editDistanceOriginalText: Int,
                         editDistanceStrippedText: Int,
+                        wordCountDifference: Int,
                         posted: Boolean = false)
 
 class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, "ANAGRAM_MATCHES") {
@@ -45,6 +46,7 @@ class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, "ANAGRAM_MATCHES
   def tweet2Id: Rep[UUID] = column[UUID]("TWEET2_ID")
   def editDistanceOriginalText = column[Int]("EDIT_DISTANCE_ORIGINAL_TEXT")
   def editDistanceStrippedText = column[Int]("EDIT_DISTANCE_STRIPPED_TEXT")
+  def wordCountDifference = column[Int]("WORD_COUNT_DIFFERENCE")
   def posted = column[Boolean]("POSTED")
 
   def tweet1 = foreignKey("TWEET1_FK", tweet1Id, tweets)(x => x.id,
@@ -52,5 +54,5 @@ class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, "ANAGRAM_MATCHES
   def tweet2 = foreignKey("TWEET2_FK", tweet2Id, tweets)(x => x.id,
     onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
 
-  def * = (id, tweet1Id, tweet2Id, editDistanceOriginalText, editDistanceStrippedText, posted) <> (AnagramMatch.tupled, AnagramMatch.unapply)
+  def * = (id, tweet1Id, tweet2Id, editDistanceOriginalText, editDistanceStrippedText, wordCountDifference, posted) <> (AnagramMatch.tupled, AnagramMatch.unapply)
 }

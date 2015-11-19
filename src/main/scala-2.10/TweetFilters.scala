@@ -67,6 +67,35 @@ object TweetFilters {
     filters.forall(x => x(strippedText))
   }
 
+  def getWordCountDifference(tweet1OriginalText: String, tweet2OriginalText: String): Int = {
+
+    def getWordCount(tweetOriginalText: String): Map[String, Int] = {
+      val formattedText = tweetOriginalText
+        .toLowerCase
+        .filter(x => anagrammableCharacters.contains(x) || Character.isWhitespace(x))
+
+      val wordCounts = formattedText.trim.split("\\s+").groupBy(x => x).map(x => (x._1, x._2.length))
+
+      wordCounts
+    }
+
+    val tweet1Counts = getWordCount(tweet1OriginalText)
+    val tweet2Counts = getWordCount(tweet2OriginalText)
+
+    val allWordsInBothTweets = tweet1Counts.keySet ++ tweet2Counts.keySet
+
+    var count = 0
+
+    for (word <- allWordsInBothTweets) {
+      val countInTweet1 = tweet1Counts.getOrElse(word, 0)
+      val countInTweet2 = tweet2Counts.getOrElse(word, 0)
+
+      count += math.abs(countInTweet1 - countInTweet2)
+    }
+
+    count
+  }
+
   // loads tweets from a file, filters them, and puts them in a database
   // For offline testing
   def main(args: Array[String]) {

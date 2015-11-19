@@ -42,7 +42,8 @@ object SaveTweetsToDatabase {
                 val matchingTweet = x.head
                 val originalTextEditDistance = DemerauLevenshtein.distance(tweet.tweetOriginalText, matchingTweet.tweetOriginalText)
                 val strippedTextEditDistance = DemerauLevenshtein.distance(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
-                val anagramMatch = AnagramMatch(0, tweet.id, matchingTweet.id, originalTextEditDistance, strippedTextEditDistance)
+                val wordCountDifference = TweetFilters.getWordCountDifference(tweet.tweetOriginalText, matchingTweet.tweetOriginalText)
+                val anagramMatch = AnagramMatch(0, tweet.id, matchingTweet.id, originalTextEditDistance, strippedTextEditDistance, wordCountDifference)
                 val anagramInsert = anagramMatchesTable += anagramMatch
 
                 DBIO.seq(tweetInsert, anagramInsert)
