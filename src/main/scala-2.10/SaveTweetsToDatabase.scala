@@ -73,7 +73,7 @@ object SaveTweetsToDatabase {
     try {
       val twitterStream = new TwitterStreamFactory(TwitterApiConfigUtil.config).getInstance
       twitterStream.addListener(saveTweetsToDatabaseListener)
-      twitterStream.sample()
+      twitterStream.sample("en")
       Thread.sleep(24.hours.toMillis)
 
       twitterStream.cleanUp()
