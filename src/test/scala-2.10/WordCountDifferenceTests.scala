@@ -42,4 +42,9 @@ class WordCountDifferenceTests extends FunSuite {
     assert(diff("yes\nyes\nyes\n", "\r\nno\nno\t\tno") == 6)
     assert(diff("yes\n\t\r\nyes\nyes\n", " \r\nyes\t\r\n\n\r  \nyes\t \tyes") == 0)
   }
+
+  test("non-characters get replaced with spaces") {
+    assert(diff("this.is.a.test", "this is a test") == 0)
+    assert(diff("!!!~~this.is\t\r\r\r\n\n\na.test%~ ~ ~ ~ ~", ")!@$)&*^!@$&*this.~^()is%a    ! !! !~ test%%") == 0)
+  }
 }

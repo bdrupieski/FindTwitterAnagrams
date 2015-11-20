@@ -70,9 +70,7 @@ object TweetFilters {
   def getWordCountDifference(tweet1OriginalText: String, tweet2OriginalText: String): Int = {
 
     def getWordCount(tweetOriginalText: String): Map[String, Int] = {
-      val formattedText = tweetOriginalText
-        .toLowerCase
-        .filter(x => anagrammableCharacters.contains(x) || Character.isWhitespace(x))
+      val formattedText = tweetOriginalText.toLowerCase.replaceAll("[^a-z0-9 _]+", " ")
 
       val wordCounts = formattedText.trim.split("\\s+").groupBy(x => x).map(x => (x._1, x._2.length))
 
