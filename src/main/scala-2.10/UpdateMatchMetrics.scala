@@ -19,15 +19,21 @@ object UpdateMatchMetrics {
       val tweet1Result = Await.result(tweet1, Duration.Inf)
       val tweet2Result = Await.result(tweet2, Duration.Inf)
 
-      val hammingDistanceStrippedText = hammingDistance(tweet1Result.head.tweetStrippedText, tweet2Result.head.tweetStrippedText)
-      val lcsLengthStrippedText = longestCommonSubstring(tweet1Result.head.tweetStrippedText, tweet2Result.head.tweetStrippedText)
-      val wordCountDifference = TweetFilters.getWordCountDifference(tweet1Result.head.tweetOriginalText, tweet2Result.head.tweetOriginalText)
+      val hammingDistanceStrippedText = hammingDistance(
+        tweet1Result.head.tweetStrippedText, tweet2Result.head.tweetStrippedText)
+
+      val lcsLengthStrippedText = longestCommonSubstring(
+        tweet1Result.head.tweetStrippedText, tweet2Result.head.tweetStrippedText)
+
+      val (wordCountDifference, totalWords) = TweetFilters.getWordCountDifference(
+        tweet1Result.head.tweetOriginalText, tweet2Result.head.tweetOriginalText)
 
       val update =
         sqlu"""UPDATE ANAGRAM_MATCHES SET
                HAMMING_DISTANCE_STRIPPED_TEXT = $hammingDistanceStrippedText,
                LONGEST_COMMON_SUBSTRING_LENGTH_STRIPPED_TEXT = $lcsLengthStrippedText,
-               WORD_COUNT_DIFFERENCE = $wordCountDifference
+               WORD_COUNT_DIFFERENCE = $wordCountDifference,
+               TOTAL_WORDS = $totalWords
                WHERE ID = ${x.id}"""
 
       println(s"updating ${x.id}")
