@@ -34,10 +34,12 @@ object MatchMetrics {
     matrix(aLength)(bLength)
   }
 
+  // Copied from http://www.tautvidas.com/blog/2013/07/compute-hamming-distance-of-byte-arrays/
   def hammingDistance(s1: String, s2: String): Int = {
     s1.zip(s2).count(c => c._1 != c._2)
   }
 
+  // Adapted from https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Longest_common_substring#C.23
   def longestCommonSubstring(s1: String, s2: String): Int = {
 
     val matrix: Array[Array[Int]] = Array.ofDim[Int](s1.length, s2.length)
