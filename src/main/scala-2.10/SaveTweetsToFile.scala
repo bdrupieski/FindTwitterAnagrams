@@ -26,7 +26,7 @@ object SaveTweetsToFile {
 
     val twitterStream = new TwitterStreamFactory(TwitterApiConfigUtil.config).getInstance
     twitterStream.addListener(statusCollector)
-    twitterStream.sample()
+    twitterStream.sample("en")
     Thread.sleep(30000)
 
     twitterStream.cleanUp()

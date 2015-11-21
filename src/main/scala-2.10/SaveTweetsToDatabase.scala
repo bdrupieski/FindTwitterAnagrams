@@ -1,5 +1,6 @@
 import slick.driver.H2Driver.api._
 import twitter4j._
+import MatchMetrics._
 
 import org.slf4j.LoggerFactory
 
@@ -40,10 +41,14 @@ object SaveTweetsToDatabase {
               val actions = if (x.nonEmpty) {
                 log.info(s"MATCH! [${tweet.tweetOriginalText}] and [${x.head.tweetOriginalText}]")
                 val matchingTweet = x.head
-                val originalTextEditDistance = DemerauLevenshtein.distance(tweet.tweetOriginalText, matchingTweet.tweetOriginalText)
-                val strippedTextEditDistance = DemerauLevenshtein.distance(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
+                val originalTextEditDistance = demerauLevenshteinDistance(tweet.tweetOriginalText, matchingTweet.tweetOriginalText)
+                val strippedTextEditDistance = demerauLevenshteinDistance(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
+                val hammingDistanceStrippedText = hammingDistance(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
+                val lcsLengthStrippedText = longestCommonSubstring(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
                 val wordCountDifference = TweetFilters.getWordCountDifference(tweet.tweetOriginalText, matchingTweet.tweetOriginalText)
-                val anagramMatch = AnagramMatch(0, tweet.id, matchingTweet.id, originalTextEditDistance, strippedTextEditDistance, wordCountDifference)
+                val anagramMatch = AnagramMatch(0, tweet.id, matchingTweet.id,
+                  originalTextEditDistance, strippedTextEditDistance, hammingDistanceStrippedText,
+                  lcsLengthStrippedText, wordCountDifference)
                 val anagramInsert = anagramMatchesTable += anagramMatch
 
                 DBIO.seq(tweetInsert, anagramInsert)
@@ -74,7 +79,7 @@ object SaveTweetsToDatabase {
       val twitterStream = new TwitterStreamFactory(TwitterApiConfigUtil.config).getInstance
       twitterStream.addListener(saveTweetsToDatabaseListener)
       twitterStream.sample("en")
-      Thread.sleep(24.hours.toMillis)
+      Thread.sleep(5.days.toMillis)
 
       twitterStream.cleanUp()
       twitterStream.shutdown()

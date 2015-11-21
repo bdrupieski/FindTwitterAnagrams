@@ -2,7 +2,7 @@ import org.scalatest.FunSuite
 
 class DemerauLevenshteinTests extends FunSuite {
 
-  val d: (String, String) => Int = DemerauLevenshtein.distance
+  val d: (String, String) => Int = MatchMetrics.demerauLevenshteinDistance
 
   test("same string has a distance of 0") {
     assert(d("", "") == 0)

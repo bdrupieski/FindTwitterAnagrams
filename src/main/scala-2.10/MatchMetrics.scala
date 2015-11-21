@@ -1,6 +1,6 @@
-object DemerauLevenshtein {
+object MatchMetrics {
   // Adapted from https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
-  def distance(a: String, b: String): Int = {
+  def demerauLevenshteinDistance(a: String, b: String): Int = {
 
     val aUpper = a.toUpperCase
     val bUpper = b.toUpperCase
@@ -32,5 +32,32 @@ object DemerauLevenshtein {
     }
 
     matrix(aLength)(bLength)
+  }
+
+  def hammingDistance(s1: String, s2: String): Int = {
+    s1.zip(s2).count(c => c._1 != c._2)
+  }
+
+  def longestCommonSubstring(s1: String, s2: String): Int = {
+
+    val matrix: Array[Array[Int]] = Array.ofDim[Int](s1.length, s2.length)
+    var maxLength = 0
+
+    for (i <- 0 until s1.length; j <- 0 until s2.length) {
+      if (!s1(i).equals(s2(j))) {
+        matrix(i)(j) = 0
+      } else {
+        if (i == 0 || j == 0) {
+          matrix(i)(j) = 1
+        } else {
+          matrix(i)(j) = 1 + matrix(i - 1)(j - 1)
+        }
+
+        if (matrix(i)(j) > maxLength) {
+          maxLength = matrix(i)(j)
+        }
+      }
+    }
+    maxLength
   }
 }
