@@ -64,7 +64,7 @@ object SaveTweetsToDatabase {
 
                 val anagramInsert = anagramMatchesTable += anagramMatch
 
-                DBIO.seq(tweetInsert, anagramInsert)
+                DBIO.seq(tweetInsert, anagramInsert).transactionally
               } else {
                 DBIO.seq(tweetInsert)
               }
