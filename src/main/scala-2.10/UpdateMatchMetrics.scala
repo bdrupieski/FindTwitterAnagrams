@@ -19,6 +19,9 @@ object UpdateMatchMetrics {
       val tweet1Result = Await.result(tweet1, Duration.Inf)
       val tweet2Result = Await.result(tweet2, Duration.Inf)
 
+      val strippedTextEditDistance = demerauLevenshteinDistance(
+        tweet1Result.head.tweetStrippedText, tweet2Result.head.tweetStrippedText)
+
       val hammingDistanceStrippedText = hammingDistance(
         tweet1Result.head.tweetStrippedText, tweet2Result.head.tweetStrippedText)
 
@@ -28,12 +31,23 @@ object UpdateMatchMetrics {
       val (wordCountDifference, totalWords) = TweetFilters.getWordCountDifference(
         tweet1Result.head.tweetOriginalText, tweet2Result.head.tweetOriginalText)
 
+      val length = tweet1Result.head.tweetSortedStrippedText.length
+      val inverseLcsToLengthRatio = 1 - (lcsLengthStrippedText.toFloat / length)
+      val editDistanceToLengthRatio = strippedTextEditDistance.toFloat / length
+      val diffWordCountToTotalWordCountRatio = wordCountDifference.toFloat / totalWords
+
+      val interestingFactor = (inverseLcsToLengthRatio + editDistanceToLengthRatio + diffWordCountToTotalWordCountRatio) / 3.toFloat
+
       val update =
         sqlu"""UPDATE ANAGRAM_MATCHES SET
                HAMMING_DISTANCE_STRIPPED_TEXT = $hammingDistanceStrippedText,
                LONGEST_COMMON_SUBSTRING_LENGTH_STRIPPED_TEXT = $lcsLengthStrippedText,
                WORD_COUNT_DIFFERENCE = $wordCountDifference,
-               TOTAL_WORDS = $totalWords
+               TOTAL_WORDS = $totalWords,
+               INVERSE_LCS_LENGTH_TO_TOTAL_LENGTH_RATIO = $inverseLcsToLengthRatio,
+               EDIT_DISTANCE_TO_LENGTH_RATIO = $editDistanceToLengthRatio,
+               DIFFERENT_WORD_COUNT_TO_TOTAL_WORD_COUNT_RATIO = $diffWordCountToTotalWordCountRatio,
+               INTERESTING_FACTOR = $interestingFactor
                WHERE ID = ${x.id}"""
 
       println(s"updating ${x.id}")

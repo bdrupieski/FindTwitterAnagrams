@@ -38,6 +38,10 @@ case class AnagramMatch(id: Int,
                         longestCommonSubstringLengthStrippedText: Int,
                         wordCountDifference: Int,
                         totalUniqueWords: Int,
+                        lcsLengthToTotalLengthRatio: Float,
+                        editDistanceToLengthRatio: Float,
+                        differentWordCountToTotalWordCount: Float,
+                        interestingFactor: Float,
                         posted: Boolean = false)
 
 class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, "ANAGRAM_MATCHES") {
@@ -53,6 +57,10 @@ class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, "ANAGRAM_MATCHES
   def longestCommonSubstringLengthStrippedText = column[Int]("LONGEST_COMMON_SUBSTRING_LENGTH_STRIPPED_TEXT")
   def wordCountDifference = column[Int]("WORD_COUNT_DIFFERENCE")
   def totalWords = column[Int]("TOTAL_WORDS")
+  def inverseLcsLengthToTotalLengthRatio = column[Float]("INVERSE_LCS_LENGTH_TO_TOTAL_LENGTH_RATIO")
+  def editDistanceToLengthRatio = column[Float]("EDIT_DISTANCE_TO_LENGTH_RATIO")
+  def differentWordCountToTotalWordCount = column[Float]("DIFFERENT_WORD_COUNT_TO_TOTAL_WORD_COUNT_RATIO")
+  def interestingFactor = column[Float]("INTERESTING_FACTOR")
   def posted = column[Boolean]("POSTED")
 
   def tweet1 = foreignKey("TWEET1_FK", tweet1Id, tweets)(x => x.id,
@@ -61,6 +69,7 @@ class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, "ANAGRAM_MATCHES
     onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
 
   def * = (id, tweet1Id, tweet2Id, editDistanceOriginalText, editDistanceStrippedText,
-    hammingDistanceStrippedText, longestCommonSubstringLengthStrippedText,
-    wordCountDifference, totalWords, posted) <> (AnagramMatch.tupled, AnagramMatch.unapply)
+    hammingDistanceStrippedText, longestCommonSubstringLengthStrippedText, wordCountDifference, totalWords,
+    inverseLcsLengthToTotalLengthRatio, editDistanceToLengthRatio, differentWordCountToTotalWordCount,
+    interestingFactor, posted) <> (AnagramMatch.tupled, AnagramMatch.unapply)
 }

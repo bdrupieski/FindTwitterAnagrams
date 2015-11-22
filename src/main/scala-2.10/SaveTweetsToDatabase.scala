@@ -45,12 +45,20 @@ object SaveTweetsToDatabase {
                 val strippedTextEditDistance = demerauLevenshteinDistance(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
                 val hammingDistanceStrippedText = hammingDistance(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
                 val lcsLengthStrippedText = longestCommonSubstring(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
-                val (wordCountDifference, totalUniqueWords) = TweetFilters.getWordCountDifference(
+                val (wordCountDifference, totalWords) = TweetFilters.getWordCountDifference(
                   tweet.tweetOriginalText, matchingTweet.tweetOriginalText)
+
+                val length = tweet.tweetSortedStrippedText.length
+                val inverseLcsLengthToLengthRatio = 1 - (lcsLengthStrippedText.toFloat / length)
+                val editDistanceToLengthRatio = strippedTextEditDistance.toFloat / length
+                val diffWordCountToTotalWordCountRatio = wordCountDifference.toFloat / totalWords
+                val interestingFactor = (inverseLcsLengthToLengthRatio + editDistanceToLengthRatio + diffWordCountToTotalWordCountRatio) / 3.toFloat
 
                 val anagramMatch = AnagramMatch(0, tweet.id, matchingTweet.id,
                   originalTextEditDistance, strippedTextEditDistance, hammingDistanceStrippedText,
-                  lcsLengthStrippedText, wordCountDifference, totalUniqueWords)
+                  lcsLengthStrippedText, wordCountDifference, totalWords,
+                  inverseLcsLengthToLengthRatio, editDistanceToLengthRatio, diffWordCountToTotalWordCountRatio,
+                  interestingFactor)
 
                 val anagramInsert = anagramMatchesTable += anagramMatch
 
