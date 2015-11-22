@@ -41,7 +41,6 @@ object SaveTweetsToDatabase {
 
             TweetDatabaseConfig.db.run(tweetMatchQuery.result) map { (x: Seq[Tweet]) =>
               val actions = if (x.nonEmpty) {
-                log.info(s"MATCH! [${tweet.tweetOriginalText}] and [${x.head.tweetOriginalText}]")
                 val matchingTweet = x.head
                 val originalTextEditDistance = demerauLevenshteinDistance(tweet.tweetOriginalText, matchingTweet.tweetOriginalText)
                 val strippedTextEditDistance = demerauLevenshteinDistance(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
@@ -63,6 +62,9 @@ object SaveTweetsToDatabase {
                   interestingFactor)
 
                 val anagramInsert = anagramMatchesTable += anagramMatch
+
+                log.info(s"MATCH! [${tweet.tweetOriginalText}] and [${x.head.tweetOriginalText}] " +
+                  s"IF: $interestingFactor, # of matches: ${x.size}")
 
                 DBIO.seq(tweetInsert, anagramInsert).transactionally
               } else {
