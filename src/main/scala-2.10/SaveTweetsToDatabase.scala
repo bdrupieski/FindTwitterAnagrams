@@ -1,3 +1,5 @@
+import java.util.concurrent.atomic.AtomicInteger
+
 import slick.driver.H2Driver.api._
 import twitter4j._
 import MatchMetrics._
@@ -16,15 +18,15 @@ object SaveTweetsToDatabase {
 
     val saveTweetsToDatabaseListener = new StatusListener() {
 
-      var totalCount: Int = 0
-      var savedTweets: Int = 0
+      var totalCount: AtomicInteger = new AtomicInteger()
+      var savedTweets: AtomicInteger = new AtomicInteger()
       val tweetsTable: TableQuery[Tweets] = TableQuery[Tweets]
       val anagramMatchesTable: TableQuery[AnagramMatches] = TableQuery[AnagramMatches]
 
       def onStatus(status: Status) {
-        totalCount += 1
+        totalCount.incrementAndGet()
 
-        if (totalCount % 1000 == 0) {
+        if (totalCount.get() % 1000 == 0) {
           log.info(s"Processed $totalCount total tweets. Saved $savedTweets so far.")
         }
 
@@ -35,7 +37,7 @@ object SaveTweetsToDatabase {
             log.debug(s"processing: ${tweet.tweetOriginalText}")
             val tweetMatchQuery = tweetsTable.filter(x => x.tweetSortedStrippedText === tweet.tweetSortedStrippedText)
             val tweetInsert = tweetsTable += tweet
-            savedTweets += 1
+            savedTweets.incrementAndGet()
 
             TweetDatabaseConfig.db.run(tweetMatchQuery.result) map { (x: Seq[Tweet]) =>
               val actions = if (x.nonEmpty) {
