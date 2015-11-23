@@ -43,12 +43,17 @@ object TweetFilters {
       !status.getText.contains("@")
     }
 
+    def notWeatherUpdateBot(status: Status): Boolean = {
+      !status.getText.startsWith("Get Weather Updates")
+    }
+
     val filters = Seq[Status => Boolean](
       isEnglish,
       isNotARetweet,
       containsNoLink,
       hasNoHashtag,
-      notAtAnybody
+      notAtAnybody,
+      notWeatherUpdateBot
     )
 
     filters.forall(x => x(status))
