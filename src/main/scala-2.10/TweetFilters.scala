@@ -72,14 +72,19 @@ object TweetFilters {
     filters.forall(x => x(strippedText))
   }
 
+  // TODO: look into more robust tokenization
+  def tokenizeTweetText(originalText: String): Array[String] = {
+    val formattedText = originalText.toLowerCase.replaceAll("'", "").replaceAll("[^a-z0-9 ]+", " ")
+
+    val words = formattedText.trim.split("\\s+")
+
+    words
+  }
+
   def getWordCountDifference(tweet1OriginalText: String, tweet2OriginalText: String): (Int, Int) = {
 
     def getWordCount(tweetOriginalText: String): Map[String, Int] = {
-      val formattedText = tweetOriginalText.toLowerCase.replaceAll("'", "").replaceAll("[^a-z0-9 ]+", " ")
-
-      val wordCounts = formattedText.trim.split("\\s+").groupBy(x => x).map(x => (x._1, x._2.length))
-
-      wordCounts
+      tokenizeTweetText(tweetOriginalText).groupBy(x => x).map(x => (x._1, x._2.length))
     }
 
     val tweet1Counts = getWordCount(tweet1OriginalText)

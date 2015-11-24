@@ -31,6 +31,9 @@ object UpdateMatchMetrics {
       val (wordCountDifference, totalWords) = TweetFilters.getWordCountDifference(
         tweet1Result.head.tweetOriginalText, tweet2Result.head.tweetOriginalText)
 
+      val isSameRearranged = isMatchWhenWordsRearranged(
+        tweet1Result.head.tweetOriginalText, tweet2Result.head.tweetOriginalText).id
+
       val length = tweet1Result.head.tweetSortedStrippedText.length
       val inverseLcsToLengthRatio = 1 - (lcsLengthStrippedText.toFloat / length)
       val editDistanceToLengthRatio = strippedTextEditDistance.toFloat / length
@@ -47,6 +50,7 @@ object UpdateMatchMetrics {
                INVERSE_LCS_LENGTH_TO_TOTAL_LENGTH_RATIO = $inverseLcsToLengthRatio,
                EDIT_DISTANCE_TO_LENGTH_RATIO = $editDistanceToLengthRatio,
                DIFFERENT_WORD_COUNT_TO_TOTAL_WORD_COUNT_RATIO = $diffWordCountToTotalWordCountRatio,
+               IS_SAME_REARRANGED = $isSameRearranged,
                INTERESTING_FACTOR = $interestingFactor
                WHERE ID = ${x.id}"""
 

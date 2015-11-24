@@ -1,6 +1,7 @@
 import java.sql.Timestamp
 import java.util.UUID
 
+import MatchMetrics.IsSameWhenRearrangedEnum
 import slick.driver.H2Driver.api._
 
 case class Tweet(id: UUID,
@@ -41,6 +42,7 @@ case class AnagramMatch(id: Int,
                         lcsLengthToTotalLengthRatio: Float,
                         editDistanceToLengthRatio: Float,
                         differentWordCountToTotalWordCount: Float,
+                        isSameRearranged: IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum,
                         interestingFactor: Float,
                         posted: Boolean = false)
 
@@ -60,6 +62,7 @@ class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, "ANAGRAM_MATCHES
   def inverseLcsLengthToTotalLengthRatio = column[Float]("INVERSE_LCS_LENGTH_TO_TOTAL_LENGTH_RATIO")
   def editDistanceToLengthRatio = column[Float]("EDIT_DISTANCE_TO_LENGTH_RATIO")
   def differentWordCountToTotalWordCount = column[Float]("DIFFERENT_WORD_COUNT_TO_TOTAL_WORD_COUNT_RATIO")
+  def isSameRearranged = column[IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum]("IS_SAME_REARRANGED")
   def interestingFactor = column[Float]("INTERESTING_FACTOR")
   def posted = column[Boolean]("POSTED")
 
@@ -70,6 +73,16 @@ class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, "ANAGRAM_MATCHES
 
   def * = (id, tweet1Id, tweet2Id, editDistanceOriginalText, editDistanceStrippedText,
     hammingDistanceStrippedText, longestCommonSubstringLengthStrippedText, wordCountDifference, totalWords,
-    inverseLcsLengthToTotalLengthRatio, editDistanceToLengthRatio, differentWordCountToTotalWordCount,
+    inverseLcsLengthToTotalLengthRatio, editDistanceToLengthRatio, differentWordCountToTotalWordCount, isSameRearranged,
     interestingFactor, posted) <> (AnagramMatch.tupled, AnagramMatch.unapply)
+
+  implicit val myEnumMapper = MappedColumnType.base[IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum, Int](
+    e => e.id,
+    {
+      case 1 => IsSameWhenRearrangedEnum.TRUE
+      case 0 => IsSameWhenRearrangedEnum.FALSE
+      case -1 => IsSameWhenRearrangedEnum.TOO_LONG_TO_COMPUTE
+    }
+  )
 }
+

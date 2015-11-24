@@ -1,3 +1,5 @@
+import MatchMetrics.IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum
+
 object MatchMetrics {
   // Adapted from https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
   def demerauLevenshteinDistance(a: String, b: String): Int = {
@@ -61,5 +63,33 @@ object MatchMetrics {
       }
     }
     maxLength
+  }
+
+  object IsSameWhenRearrangedEnum extends Enumeration {
+    type IsSameWhenRearrangedEnum = Value
+    val TRUE = Value(1)
+    val FALSE = Value(0)
+    val TOO_LONG_TO_COMPUTE = Value(-1)
+  }
+
+  def isMatchWhenWordsRearranged(s1: String, s2: String): IsSameWhenRearrangedEnum = {
+
+    val s1Tokens = TweetFilters.tokenizeTweetText(s1)
+    val s2Tokens = TweetFilters.tokenizeTweetText(s2)
+
+    // all permutations of 6 elements is 720 items.
+    // 7 elements is 5,040. That's too much.
+    if (s1Tokens.length >= 7 || s2Tokens.length >= 7) {
+      IsSameWhenRearrangedEnum.TOO_LONG_TO_COMPUTE
+    } else {
+      val s1Perms = s1Tokens.permutations.map(x => x.mkString).toArray
+      val s2Perms = s2Tokens.permutations.map(x => x.mkString).toArray
+
+      if (s1Perms.intersect(s2Perms).nonEmpty) {
+        IsSameWhenRearrangedEnum.TRUE
+      } else {
+        IsSameWhenRearrangedEnum.FALSE
+      }
+    }
   }
 }

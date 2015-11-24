@@ -48,6 +48,7 @@ object SaveTweetsToDatabase {
                 val lcsLengthStrippedText = longestCommonSubstring(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
                 val (wordCountDifference, totalWords) = TweetFilters.getWordCountDifference(
                   tweet.tweetOriginalText, matchingTweet.tweetOriginalText)
+                val isSameRearranged = MatchMetrics.isMatchWhenWordsRearranged(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
 
                 val length = tweet.tweetSortedStrippedText.length
                 val inverseLcsLengthToLengthRatio = 1 - (lcsLengthStrippedText.toFloat / length)
@@ -59,7 +60,7 @@ object SaveTweetsToDatabase {
                   originalTextEditDistance, strippedTextEditDistance, hammingDistanceStrippedText,
                   lcsLengthStrippedText, wordCountDifference, totalWords,
                   inverseLcsLengthToLengthRatio, editDistanceToLengthRatio, diffWordCountToTotalWordCountRatio,
-                  interestingFactor)
+                  isSameRearranged, interestingFactor)
 
                 val anagramInsert = anagramMatchesTable += anagramMatch
 
