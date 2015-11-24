@@ -17,6 +17,7 @@ WHERE
 IN
   (SELECT
      T.ID
-   FROM TWEETS T
+   FROM
+     TWEETS T
    WHERE
      T.ORIGINAL_TEXT LIKE 'Get Weather%');
