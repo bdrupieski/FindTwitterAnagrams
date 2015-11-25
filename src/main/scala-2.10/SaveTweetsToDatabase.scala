@@ -32,7 +32,7 @@ object SaveTweetsToDatabase {
 
         if (TweetFilters.statusFilter(status)) {
           val tweet = TweetFilters.getTweetCase(status)
-          if (TweetFilters.strippedTextFilter(tweet.tweetStrippedText)) {
+          if (TweetFilters.tweetFilter(tweet)) {
 
             log.debug(s"processing: ${tweet.tweetOriginalText}")
             val tweetMatchQuery = tweetsTable.filter(x => x.tweetSortedStrippedText === tweet.tweetSortedStrippedText)

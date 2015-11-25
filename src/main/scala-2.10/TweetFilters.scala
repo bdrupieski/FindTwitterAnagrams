@@ -7,7 +7,7 @@ import twitter4j.Status
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Await
 
 object TweetFilters {
 
@@ -59,17 +59,17 @@ object TweetFilters {
     filters.forall(x => x(status))
   }
 
-  def strippedTextFilter(strippedText: String): Boolean = {
+  def tweetFilter(tweet: Tweet): Boolean = {
 
-    def isLongEnough(strippedText: String): Boolean = {
-      strippedText.length > 8
+    def isLongEnough(tweet: Tweet): Boolean = {
+      tweet.tweetStrippedText.length > 8
     }
 
-    val filters = Seq[String => Boolean] (
+    val filters = Seq[Tweet => Boolean] (
       isLongEnough
     )
 
-    filters.forall(x => x(strippedText))
+    filters.forall(x => x(tweet))
   }
 
   // loads tweets from a file, filters them, and puts them in a database
@@ -88,17 +88,12 @@ object TweetFilters {
 
     val statuses: ArrayBuffer[Status] = load("statuses")
     val filteredStatuses = statuses.filter(statusFilter)
-    println(s"Filtered: ${filteredStatuses.size}, Unfiltered: ${statuses.size}")
 
-    val tweetsToInsert: ArrayBuffer[Tweet] = filteredStatuses
-      .map(getTweetCase)
-      .filter(x => strippedTextFilter(x.tweetStrippedText))
-
+    val tweetsToInsert: ArrayBuffer[Tweet] = filteredStatuses.map(getTweetCase).filter(tweetFilter)
     val tweetInserts = tweetsTable ++= tweetsToInsert
 
     try {
-      val insertFuture: Future[Unit] = TweetDatabaseConfig.db.run(DBIO.seq(tweetInserts))
-      Await.result(insertFuture, Duration.Inf)
+      Await.result(TweetDatabaseConfig.db.run(DBIO.seq(tweetInserts)), Duration.Inf)
     } finally TweetDatabaseConfig.db.close
   }
 }
