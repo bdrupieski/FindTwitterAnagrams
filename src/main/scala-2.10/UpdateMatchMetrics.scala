@@ -28,7 +28,7 @@ object UpdateMatchMetrics {
       val lcsLengthStrippedText = longestCommonSubstring(
         tweet1Result.head.tweetStrippedText, tweet2Result.head.tweetStrippedText)
 
-      val (wordCountDifference, totalWords) = TweetFilters.getWordCountDifference(
+      val (wordCountDifference, totalWords) = getWordCountDifference(
         tweet1Result.head.tweetOriginalText, tweet2Result.head.tweetOriginalText)
 
       val isSameRearranged = isMatchWhenWordsRearranged(

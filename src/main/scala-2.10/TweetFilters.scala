@@ -11,10 +11,10 @@ import scala.concurrent.{Await, Future}
 
 object TweetFilters {
 
-  private val anagrammableCharacters = HashSet[Char]("abcdefghijklmnopqrstuvwxyz1234567890".toCharArray: _*)
+  private val lowercaseAlphanumericCharacters = HashSet[Char]("abcdefghijklmnopqrstuvwxyz1234567890".toCharArray: _*)
 
   def getTweetCase(status: Status): Tweet = {
-    val strippedText: String = status.getText.toLowerCase.filter(y => anagrammableCharacters.contains(y))
+    val strippedText: String = status.getText.toLowerCase.filter(y => lowercaseAlphanumericCharacters.contains(y))
     val sortedStrippedText: String = strippedText.sorted
 
     Tweet(UUID.randomUUID(), status.getId, new java.sql.Timestamp(status.getCreatedAt.getTime), status.getText, strippedText,
@@ -70,40 +70,6 @@ object TweetFilters {
     )
 
     filters.forall(x => x(strippedText))
-  }
-
-  // TODO: look into more robust tokenization
-  def tokenizeTweetText(originalText: String): Array[String] = {
-    val formattedText = originalText.toLowerCase.replaceAll("'", "").replaceAll("[^a-z0-9 ]+", " ")
-
-    val words = formattedText.trim.split("\\s+")
-
-    words
-  }
-
-  def getWordCountDifference(tweet1OriginalText: String, tweet2OriginalText: String): (Int, Int) = {
-
-    def getWordCount(tweetOriginalText: String): Map[String, Int] = {
-      tokenizeTweetText(tweetOriginalText).groupBy(x => x).map(x => (x._1, x._2.length))
-    }
-
-    val tweet1Counts = getWordCount(tweet1OriginalText)
-    val tweet2Counts = getWordCount(tweet2OriginalText)
-
-    val allWordsInBothTweets = tweet1Counts.keySet ++ tweet2Counts.keySet
-
-    var wordDifferenceCount = 0
-
-    for (word <- allWordsInBothTweets) {
-      val countInTweet1 = tweet1Counts.getOrElse(word, 0)
-      val countInTweet2 = tweet2Counts.getOrElse(word, 0)
-
-      wordDifferenceCount += math.abs(countInTweet1 - countInTweet2)
-    }
-
-    val totalWords = tweet1Counts.values.sum + tweet2Counts.values.sum
-
-    (wordDifferenceCount, totalWords)
   }
 
   // loads tweets from a file, filters them, and puts them in a database

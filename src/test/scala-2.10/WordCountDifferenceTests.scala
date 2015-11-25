@@ -2,7 +2,7 @@ import org.scalatest.FunSuite
 
 class WordCountDifferenceTests extends FunSuite {
 
-  val diff: (String, String) => (Int, Int) = TweetFilters.getWordCountDifference
+  val diff: (String, String) => (Int, Int) = MatchMetrics.getWordCountDifference
 
   test("same words different order") {
     assert(diff("this is a test", "this is a test") == (0, 8))

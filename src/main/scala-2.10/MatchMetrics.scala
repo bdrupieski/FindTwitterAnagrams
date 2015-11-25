@@ -65,6 +65,40 @@ object MatchMetrics {
     maxLength
   }
 
+  // TODO: look into more robust tokenization
+  private def tokenizeTweetText(originalText: String): Array[String] = {
+    val formattedText = originalText.toLowerCase.replaceAll("'", "").replaceAll("[^a-z0-9 ]+", " ")
+
+    val words = formattedText.trim.split("\\s+")
+
+    words
+  }
+
+  def getWordCountDifference(tweet1OriginalText: String, tweet2OriginalText: String): (Int, Int) = {
+
+    def getWordCount(tweetOriginalText: String): Map[String, Int] = {
+      tokenizeTweetText(tweetOriginalText).groupBy(x => x).map(x => (x._1, x._2.length))
+    }
+
+    val tweet1Counts = getWordCount(tweet1OriginalText)
+    val tweet2Counts = getWordCount(tweet2OriginalText)
+
+    val allWordsInBothTweets = tweet1Counts.keySet ++ tweet2Counts.keySet
+
+    var wordDifferenceCount = 0
+
+    for (word <- allWordsInBothTweets) {
+      val countInTweet1 = tweet1Counts.getOrElse(word, 0)
+      val countInTweet2 = tweet2Counts.getOrElse(word, 0)
+
+      wordDifferenceCount += math.abs(countInTweet1 - countInTweet2)
+    }
+
+    val totalWords = tweet1Counts.values.sum + tweet2Counts.values.sum
+
+    (wordDifferenceCount, totalWords)
+  }
+
   object IsSameWhenRearrangedEnum extends Enumeration {
     type IsSameWhenRearrangedEnum = Value
     val TRUE = Value(1)
@@ -74,8 +108,8 @@ object MatchMetrics {
 
   def isMatchWhenWordsRearranged(s1: String, s2: String): IsSameWhenRearrangedEnum = {
 
-    val s1Tokens = TweetFilters.tokenizeTweetText(s1)
-    val s2Tokens = TweetFilters.tokenizeTweetText(s2)
+    val s1Tokens = tokenizeTweetText(s1)
+    val s2Tokens = tokenizeTweetText(s2)
 
     // all permutations of 6 elements is 720 items.
     // 7 elements is 5,040. That's too much.

@@ -46,7 +46,7 @@ object SaveTweetsToDatabase {
                 val strippedTextEditDistance = demerauLevenshteinDistance(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
                 val hammingDistanceStrippedText = hammingDistance(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
                 val lcsLengthStrippedText = longestCommonSubstring(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
-                val (wordCountDifference, totalWords) = TweetFilters.getWordCountDifference(
+                val (wordCountDifference, totalWords) = getWordCountDifference(
                   tweet.tweetOriginalText, matchingTweet.tweetOriginalText)
                 val isSameRearranged = MatchMetrics.isMatchWhenWordsRearranged(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
 
