@@ -1,7 +1,6 @@
 import java.sql.Timestamp
 import java.util.UUID
 
-import MatchMetrics.IsSameWhenRearrangedEnum
 import slick.driver.H2Driver.api._
 
 case class Tweet(id: UUID,

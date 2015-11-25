@@ -1,4 +1,4 @@
-import MatchMetrics.IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum
+import IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum
 
 object MatchMetrics {
   // Adapted from https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
@@ -99,13 +99,6 @@ object MatchMetrics {
     (wordDifferenceCount, totalWords)
   }
 
-  object IsSameWhenRearrangedEnum extends Enumeration {
-    type IsSameWhenRearrangedEnum = Value
-    val TRUE = Value(1)
-    val FALSE = Value(0)
-    val TOO_LONG_TO_COMPUTE = Value(-1)
-  }
-
   def isMatchWhenWordsRearranged(s1: String, s2: String): IsSameWhenRearrangedEnum = {
 
     val s1Tokens = tokenizeTweetText(s1)
@@ -126,4 +119,11 @@ object MatchMetrics {
       }
     }
   }
+}
+
+object IsSameWhenRearrangedEnum extends Enumeration {
+  type IsSameWhenRearrangedEnum = Value
+  val TRUE = Value(1)
+  val FALSE = Value(0)
+  val TOO_LONG_TO_COMPUTE = Value(-1)
 }

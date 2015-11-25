@@ -1,15 +1,10 @@
-import java.io.{FileInputStream, ObjectInputStream}
 import java.util.UUID
 
-import slick.driver.H2Driver.api._
 import twitter4j.Status
 
 import scala.collection.immutable.HashSet
-import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.duration.Duration
-import scala.concurrent.Await
 
-object TweetFilters {
+object Filters {
 
   private val lowercaseAlphanumericCharacters = HashSet[Char]("abcdefghijklmnopqrstuvwxyz1234567890".toCharArray: _*)
 
@@ -70,30 +65,5 @@ object TweetFilters {
     )
 
     filters.forall(x => x(tweet))
-  }
-
-  // loads tweets from a file, filters them, and puts them in a database
-  // For offline testing
-  def main(args: Array[String]) {
-
-    TweetDatabaseConfig.initTables()
-    val tweetsTable: TableQuery[Tweets] = TableQuery[Tweets]
-
-    def load(filename: String): ArrayBuffer[twitter4j.Status] = {
-      val objectStream = new ObjectInputStream(new FileInputStream(filename))
-      val statuses = objectStream.readObject().asInstanceOf[ArrayBuffer[twitter4j.Status]]
-      objectStream.close()
-      statuses
-    }
-
-    val statuses: ArrayBuffer[Status] = load("statuses")
-    val filteredStatuses = statuses.filter(statusFilter)
-
-    val tweetsToInsert: ArrayBuffer[Tweet] = filteredStatuses.map(getTweetCase).filter(tweetFilter)
-    val tweetInserts = tweetsTable ++= tweetsToInsert
-
-    try {
-      Await.result(TweetDatabaseConfig.db.run(DBIO.seq(tweetInserts)), Duration.Inf)
-    } finally TweetDatabaseConfig.db.close
   }
 }

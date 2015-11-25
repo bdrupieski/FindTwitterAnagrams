@@ -30,9 +30,9 @@ object SaveTweetsToDatabase {
           log.info(s"Processed $totalCount total tweets. Saved $savedTweets so far.")
         }
 
-        if (TweetFilters.statusFilter(status)) {
-          val tweet = TweetFilters.getTweetCase(status)
-          if (TweetFilters.tweetFilter(tweet)) {
+        if (Filters.statusFilter(status)) {
+          val tweet = Filters.getTweetCase(status)
+          if (Filters.tweetFilter(tweet)) {
 
             log.debug(s"processing: ${tweet.tweetOriginalText}")
             val tweetMatchQuery = tweetsTable.filter(x => x.tweetSortedStrippedText === tweet.tweetSortedStrippedText)
