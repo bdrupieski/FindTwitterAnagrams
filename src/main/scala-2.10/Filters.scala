@@ -66,4 +66,11 @@ object Filters {
 
     filters.forall(x => x(tweet))
   }
+
+  def isGoodMatch(anagramMatch: AnagramMatch): Boolean = {
+    anagramMatch.lcsLengthToTotalLengthRatio > 0 &&
+    anagramMatch.editDistanceToLengthRatio > 0 &&
+    anagramMatch.wordCountDifference > 0 &&
+    anagramMatch.isSameRearranged != IsSameWhenRearrangedEnum.TRUE
+  }
 }

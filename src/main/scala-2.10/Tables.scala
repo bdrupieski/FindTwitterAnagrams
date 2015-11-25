@@ -27,6 +27,8 @@ class Tweets(tag: Tag) extends Table[Tweet](tag, "TWEETS") {
 
   def * = (id, statusId, createdAt, tweetOriginalText, tweetStrippedText, tweetSortedStrippedText,
     userId, userName, isMatched) <> (Tweet.tupled, Tweet.unapply)
+
+  def idx = index("STRIPPED_SORTED_TEXT_INDEX", tweetSortedStrippedText)
 }
 
 case class AnagramMatch(id: Int,

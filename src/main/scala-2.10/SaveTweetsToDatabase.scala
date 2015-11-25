@@ -2,7 +2,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import slick.driver.H2Driver.api._
 import twitter4j._
-import MatchMetrics._
+import AnagramMatchBuilder._
+import Filters._
 
 import org.slf4j.LoggerFactory
 
@@ -31,48 +32,37 @@ object SaveTweetsToDatabase {
         }
 
         if (Filters.statusFilter(status)) {
-          val tweet = Filters.getTweetCase(status)
-          if (Filters.tweetFilter(tweet)) {
+          val newTweet = Filters.getTweetCase(status)
+          if (Filters.tweetFilter(newTweet)) {
 
-            log.debug(s"processing: ${tweet.tweetOriginalText}")
-            val tweetMatchQuery = tweetsTable.filter(x => x.tweetSortedStrippedText === tweet.tweetSortedStrippedText)
-            val tweetInsert = tweetsTable += tweet
+            log.debug(s"processing (${savedTweets.get()}): ${newTweet.tweetOriginalText} (${newTweet.tweetSortedStrippedText})")
+            val tweetMatchQuery = tweetsTable.filter(x => x.tweetSortedStrippedText === newTweet.tweetSortedStrippedText)
+            val tweetInsert = tweetsTable += newTweet
             savedTweets.incrementAndGet()
 
-            TweetDatabaseConfig.db.run(tweetMatchQuery.result) map { (x: Seq[Tweet]) =>
-              val actions = if (x.nonEmpty) {
-                val matchingTweet = x.head
-                val originalTextEditDistance = demerauLevenshteinDistance(tweet.tweetOriginalText, matchingTweet.tweetOriginalText)
-                val strippedTextEditDistance = demerauLevenshteinDistance(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
-                val hammingDistanceStrippedText = hammingDistance(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
-                val lcsLengthStrippedText = longestCommonSubstring(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
-                val (wordCountDifference, totalWords) = getWordCountDifference(
-                  tweet.tweetOriginalText, matchingTweet.tweetOriginalText)
-                val isSameRearranged = MatchMetrics.isMatchWhenWordsRearranged(tweet.tweetStrippedText, matchingTweet.tweetStrippedText)
+            TweetDatabaseConfig.db.run(tweetMatchQuery.result) map { (tweets: Seq[Tweet]) =>
 
-                val length = tweet.tweetSortedStrippedText.length
-                val inverseLcsLengthToLengthRatio = 1 - (lcsLengthStrippedText.toFloat / length)
-                val editDistanceToLengthRatio = strippedTextEditDistance.toFloat / length
-                val diffWordCountToTotalWordCountRatio = wordCountDifference.toFloat / totalWords
-                val interestingFactor = (inverseLcsLengthToLengthRatio + editDistanceToLengthRatio + diffWordCountToTotalWordCountRatio) / 3.toFloat
-
-                val anagramMatch = AnagramMatch(0, tweet.id, matchingTweet.id,
-                  originalTextEditDistance, strippedTextEditDistance, hammingDistanceStrippedText,
-                  lcsLengthStrippedText, wordCountDifference, totalWords,
-                  inverseLcsLengthToLengthRatio, editDistanceToLengthRatio, diffWordCountToTotalWordCountRatio,
-                  isSameRearranged, interestingFactor)
-
-                val anagramInsert = anagramMatchesTable += anagramMatch
-
-                log.info(s"MATCH! [${tweet.tweetOriginalText}] and [${x.head.tweetOriginalText}] " +
-                  s"IF: $interestingFactor, # of matches: ${x.size}")
-
-                DBIO.seq(tweetInsert, anagramInsert).transactionally
+              val sameTweetsAlreadySavedToDb = tweets.filter(x => x.tweetStrippedText == newTweet.tweetStrippedText)
+              if (sameTweetsAlreadySavedToDb.nonEmpty) {
+                log.info(
+                  s"ALREADY SAVED: ${newTweet.tweetOriginalText} (${newTweet.tweetStrippedText}) ${sys.props("line.separator")}" +
+                  s"EXISTING DUPLICATE TWEET(S): ${sameTweetsAlreadySavedToDb.map(x => x.tweetOriginalText).mkString(" ")}")
               } else {
-                DBIO.seq(tweetInsert)
-              }
+                val actions = if (tweets.nonEmpty) {
+                  val anagramMatches = tweets.map(buildAnagramMatch(newTweet, _)).filter(isGoodMatch)
+                  val anagramMatchInserts = anagramMatchesTable ++= anagramMatches
 
-              TweetDatabaseConfig.db.run(actions)
+                  val matchLog = anagramMatches.map(x => s"IF: ${x.interestingFactor}").mkString(" ")
+                  log.info(s"MATCH ON ${newTweet.tweetOriginalText}: $matchLog")
+
+                  DBIO.seq(tweetInsert, anagramMatchInserts).transactionally
+                } else {
+                  DBIO.seq(tweetInsert)
+                }
+
+                log.debug(s"inserting (${savedTweets.get()}): ${newTweet.tweetOriginalText}")
+                TweetDatabaseConfig.db.run(actions)
+              }
             }
           }
         }
