@@ -1,5 +1,6 @@
 import java.util.concurrent.atomic.AtomicInteger
 
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import slick.dbio.{NoStream, DBIOAction}
 import slick.driver.H2Driver.api._
 
@@ -7,15 +8,11 @@ import twitter4j._
 import AnagramMatchBuilder._
 import Filters._
 
-import org.slf4j.LoggerFactory
-
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
-object SaveTweetsToDatabase {
-
-  val log = LoggerFactory.getLogger(SaveTweetsToDatabase.getClass)
+object SaveTweetsToDatabase extends StrictLogging {
 
   def main(args: Array[String]) {
     TweetDatabaseConfig.initTables()
@@ -31,14 +28,14 @@ object SaveTweetsToDatabase {
         totalCount.incrementAndGet()
 
         if (totalCount.get() % 1000 == 0) {
-          log.info(s"Processed $totalCount total tweets. Saved $savedTweets so far.")
+          logger.info(s"Processed $totalCount total tweets. Saved $savedTweets so far.")
         }
 
         if (Filters.statusFilter(status)) {
           val newTweet = Filters.getTweetCase(status)
           if (Filters.tweetFilter(newTweet)) {
 
-            log.debug(s"processing (${savedTweets.get()}): ${newTweet.tweetOriginalText} (${newTweet.tweetSortedStrippedText})")
+            logger.debug(s"processing (${savedTweets.get()}): ${newTweet.tweetOriginalText} (${newTweet.tweetSortedStrippedText})")
             val tweetMatchQuery = tweetsTable.filter(x => x.tweetSortedStrippedText === newTweet.tweetSortedStrippedText)
             val tweetInsert = tweetsTable += newTweet
 
@@ -47,7 +44,7 @@ object SaveTweetsToDatabase {
               val sameTweetsAlreadySavedToDb = tweets.filter(x => x.tweetStrippedText == newTweet.tweetStrippedText)
 
               if (sameTweetsAlreadySavedToDb.nonEmpty) {
-                log.info(s"ALREADY SAVED: ${newTweet.tweetOriginalText} (${newTweet.tweetStrippedText}) " +
+                logger.info(s"ALREADY SAVED: ${newTweet.tweetOriginalText} (${newTweet.tweetStrippedText}) " +
                   s"EXISTING DUPLICATE(S): ${sameTweetsAlreadySavedToDb.map(x => s"${x.tweetOriginalText} (${x.tweetStrippedText})").mkString(" ")}")
               } else {
 
@@ -58,12 +55,12 @@ object SaveTweetsToDatabase {
                   if (anagramMatches.nonEmpty) {
                     val anagramMatchInserts = anagramMatchesTable ++= anagramMatches
                     inserts += anagramMatchInserts
-                    log.info(s"MATCH ON ${newTweet.tweetOriginalText}:" +
+                    logger.info(s"MATCH ON ${newTweet.tweetOriginalText}:" +
                       s" ${anagramMatches.map(x => s"IF: ${x.interestingFactor}").mkString(" ")}")
                   }
                 }
 
-                log.debug(s"inserting (${savedTweets.get()}): ${newTweet.tweetOriginalText}")
+                logger.debug(s"inserting (${savedTweets.get()}): ${newTweet.tweetOriginalText}")
                 TweetDatabaseConfig.db.run(DBIO.seq(inserts: _*).transactionally)
                 savedTweets.incrementAndGet()
               }
@@ -72,20 +69,20 @@ object SaveTweetsToDatabase {
         }
       }
       def onDeletionNotice(statusDeletionNotice: StatusDeletionNotice): Unit = {
-        log.info(s"STATUS DELETED: ${statusDeletionNotice.getStatusId}")
+        logger.info(s"STATUS DELETED: ${statusDeletionNotice.getStatusId}")
       }
       def onTrackLimitationNotice(numberOfLimitedStatuses: Int): Unit = {
-        log.warn(s"TRACK LIMITATION NOTICE: $numberOfLimitedStatuses")
+        logger.warn(s"TRACK LIMITATION NOTICE: $numberOfLimitedStatuses")
       }
       def onException(ex: Exception): Unit = {
-        log.error(ex.getMessage)
-        log.error(ex.getStackTraceString)
+        logger.error(ex.getMessage)
+        logger.error(ex.getStackTraceString)
       }
       def onScrubGeo(arg0: Long, arg1: Long): Unit = {
-        log.info(s"GEO SCRUBBED: $arg0, $arg1")
+        logger.info(s"GEO SCRUBBED: $arg0, $arg1")
       }
       def onStallWarning(warning: StallWarning): Unit = {
-        log.warn(s"STALL WARNING: ${warning.toString}")
+        logger.warn(s"STALL WARNING: ${warning.toString}")
       }
     }
 

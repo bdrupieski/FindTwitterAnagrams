@@ -1,15 +1,14 @@
 import com.typesafe.config.ConfigFactory
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import slick.driver.H2Driver.api._
 import slick.jdbc.meta.MTable
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-object TweetDatabaseConfig {
+object TweetDatabaseConfig extends StrictLogging {
 
   val db = Database.forConfig("h2tweetdb", ConfigFactory.load("db"))
-  val log = LoggerFactory.getLogger(TweetDatabaseConfig.getClass)
 
   def initTables(): Unit = {
 
@@ -20,7 +19,7 @@ object TweetDatabaseConfig {
       val tables: List[MTable] = Await.result(db.run(MTable.getTables), Duration.Inf).toList
 
       if (tables.isEmpty) {
-        log.info("No tables. Creating schema.")
+        logger.info("No tables. Creating schema.")
         Await.result(db.run(
           DBIO.seq(
             (tweets.schema ++ anagramMatches.schema).create
@@ -31,8 +30,8 @@ object TweetDatabaseConfig {
     } catch {
       case e: Exception =>
         db.close
-        log.error(e.getMessage)
-        log.error(e.getStackTraceString)
+        logger.error(e.getMessage)
+        logger.error(e.getStackTraceString)
         throw e
     }
   }
