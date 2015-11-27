@@ -38,7 +38,6 @@ object SaveTweetsToDatabase {
             log.debug(s"processing (${savedTweets.get()}): ${newTweet.tweetOriginalText} (${newTweet.tweetSortedStrippedText})")
             val tweetMatchQuery = tweetsTable.filter(x => x.tweetSortedStrippedText === newTweet.tweetSortedStrippedText)
             val tweetInsert = tweetsTable += newTweet
-            savedTweets.incrementAndGet()
 
             TweetDatabaseConfig.db.run(tweetMatchQuery.result) map { (tweets: Seq[Tweet]) =>
 
@@ -62,6 +61,7 @@ object SaveTweetsToDatabase {
 
                 log.debug(s"inserting (${savedTweets.get()}): ${newTweet.tweetOriginalText}")
                 TweetDatabaseConfig.db.run(actions)
+                savedTweets.incrementAndGet()
               }
             }
           }
