@@ -34,8 +34,8 @@ object Filters {
       !status.getText.contains("#")
     }
 
-    def notAtAnybody(status: Status): Boolean = {
-      !status.getText.contains("@")
+    def noMentions(status: Status): Boolean = {
+      status.getUserMentionEntities.isEmpty
     }
 
     def notWeatherUpdateBot(status: Status): Boolean = {
@@ -47,7 +47,7 @@ object Filters {
       isNotARetweet,
       containsNoLink,
       hasNoHashtag,
-      notAtAnybody,
+      noMentions,
       notWeatherUpdateBot
     )
 
