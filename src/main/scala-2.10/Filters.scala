@@ -26,8 +26,8 @@ object Filters {
       status.getLang == "en"
     }
 
-    def containsNoLink(status: Status): Boolean = {
-      !status.getText.contains("http")
+    def containsNoUrls(status: Status): Boolean = {
+      status.getURLEntities.isEmpty
     }
 
     def hasNoHashtag(status: Status): Boolean = {
@@ -45,7 +45,7 @@ object Filters {
     val filters = Seq[Status => Boolean](
       isEnglish,
       isNotARetweet,
-      containsNoLink,
+      containsNoUrls,
       hasNoHashtag,
       noMentions,
       notWeatherUpdateBot
