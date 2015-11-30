@@ -7,7 +7,9 @@ SELECT
   T1.ORIGINAL_TEXT                                                      AS T1_ORIG,
   T2.ORIGINAL_TEXT                                                      AS T2_ORIG,
   CONCAT('http://twitter.com/', T1.USER_NAME, '/status/', T1.STATUS_ID) AS TWEET1_URL,
-  CONCAT('http://twitter.com/', T2.USER_NAME, '/status/', T2.STATUS_ID) AS TWEET2_URL
+  CONCAT('http://twitter.com/', T2.USER_NAME, '/status/', T2.STATUS_ID) AS TWEET2_URL,
+  T1.CREATED_AT                                                         AS T1_CREATED,
+  T2.CREATED_AT                                                         AS T2_CREATED
 FROM
   ANAGRAM_MATCHES A
   INNER JOIN TWEETS T1 ON A.TWEET1_ID = T1.ID
