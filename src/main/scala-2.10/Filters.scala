@@ -31,7 +31,7 @@ object Filters {
     }
 
     def hasNoHashtag(status: Status): Boolean = {
-      !status.getText.contains("#")
+      status.getHashtagEntities.isEmpty
     }
 
     def noMentions(status: Status): Boolean = {
