@@ -27,7 +27,7 @@ object SaveTweetsToDatabase extends StrictLogging {
       def onStatus(status: Status) {
         totalCount.incrementAndGet()
 
-        if (totalCount.get() % 1000 == 0) {
+        if (totalCount.get() % 10000 == 0) {
           logger.info(s"Processed $totalCount total tweets. Saved $savedTweets so far.")
         }
 
@@ -44,7 +44,7 @@ object SaveTweetsToDatabase extends StrictLogging {
               val sameTweetsAlreadySavedToDb = tweets.filter(x => x.tweetStrippedText == newTweet.tweetStrippedText)
 
               if (sameTweetsAlreadySavedToDb.nonEmpty) {
-                logger.info(s"ALREADY SAVED: ${newTweet.tweetOriginalText} (${newTweet.tweetStrippedText}) " +
+                logger.debug(s"ALREADY SAVED: ${newTweet.tweetOriginalText} (${newTweet.tweetStrippedText}) " +
                   s"EXISTING DUPLICATE(S): ${sameTweetsAlreadySavedToDb.map(x => s"${x.tweetOriginalText} (${x.tweetStrippedText})").mkString(" ")}")
               } else {
 
