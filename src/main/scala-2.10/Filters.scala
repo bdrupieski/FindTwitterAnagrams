@@ -23,7 +23,9 @@ trait Filters {
     }
 
     def containsNoUrls(status: Status): Boolean = {
-      status.getURLEntities.isEmpty
+      status.getURLEntities.isEmpty &&
+        status.getMediaEntities.isEmpty &&
+        status.getExtendedMediaEntities.isEmpty
     }
 
     def hasNoHashtag(status: Status): Boolean = {
