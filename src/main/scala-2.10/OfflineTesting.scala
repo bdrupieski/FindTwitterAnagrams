@@ -7,7 +7,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-object OfflineTesting {
+object OfflineTesting extends Filters {
   def main(args: Array[String]) {
     sampleAndSaveStatusesToFile()
     loadStatusesFromFileAndSaveToDbAsTweets()
@@ -57,11 +57,11 @@ object OfflineTesting {
     }
 
     val statuses: ArrayBuffer[Status] = load("statuses")
-    val filteredStatuses = statuses.filter(Filters.statusFilter)
+    val filteredStatuses = statuses.filter(statusFilter)
 
     val tweetsToInsert: ArrayBuffer[Tweet] = filteredStatuses
-      .map(Filters.getTweetCase)
-      .filter(Filters.tweetFilter)
+      .map(getTweetFromStatus)
+      .filter(tweetFilter)
     val tweetInserts = tweetsTable ++= tweetsToInsert
 
     try {

@@ -2,14 +2,10 @@ import java.util.UUID
 
 import twitter4j.Status
 
-import scala.collection.immutable.HashSet
+trait Filters {
 
-object Filters {
-
-  private val lowercaseAlphanumericCharacters = HashSet[Char]("abcdefghijklmnopqrstuvwxyz1234567890".toCharArray: _*)
-
-  def getTweetCase(status: Status): Tweet = {
-    val strippedText: String = status.getText.toLowerCase.filter(y => lowercaseAlphanumericCharacters.contains(y))
+  def getTweetFromStatus(status: Status): Tweet = {
+    val strippedText: String = NormalizeSupport.normalize(status.getText)
     val sortedStrippedText: String = strippedText.sorted
 
     Tweet(UUID.randomUUID(), status.getId, new java.sql.Timestamp(status.getCreatedAt.getTime), status.getText, strippedText,
@@ -74,3 +70,5 @@ object Filters {
     anagramMatch.isSameRearranged != IsSameWhenRearrangedEnum.TRUE
   }
 }
+
+object Filters extends Filters

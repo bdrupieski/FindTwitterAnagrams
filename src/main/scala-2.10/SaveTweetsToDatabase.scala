@@ -6,13 +6,12 @@ import slick.driver.H2Driver.api._
 
 import twitter4j._
 import AnagramMatchBuilder._
-import Filters._
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
-object SaveTweetsToDatabase extends StrictLogging {
+object SaveTweetsToDatabase extends StrictLogging with Filters {
 
   def main(args: Array[String]) {
     TweetDatabaseConfig.initTables()
@@ -31,9 +30,9 @@ object SaveTweetsToDatabase extends StrictLogging {
           logger.info(s"Processed $totalCount total tweets. Saved $savedTweets so far.")
         }
 
-        if (Filters.statusFilter(status)) {
-          val newTweet = Filters.getTweetCase(status)
-          if (Filters.tweetFilter(newTweet)) {
+        if (statusFilter(status)) {
+          val newTweet = getTweetFromStatus(status)
+          if (tweetFilter(newTweet)) {
 
             logger.debug(s"processing (${savedTweets.get()}): ${newTweet.tweetOriginalText} (${newTweet.tweetSortedStrippedText})")
             val tweetMatchQuery = tweetsTable.filter(x => x.tweetSortedStrippedText === newTweet.tweetSortedStrippedText)
