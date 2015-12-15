@@ -1,7 +1,7 @@
-import java.io.{FileInputStream, ObjectInputStream, FileOutputStream, ObjectOutputStream}
+import java.io.{FileInputStream, FileOutputStream, ObjectInputStream, ObjectOutputStream}
 
-import twitter4j._
 import slick.driver.H2Driver.api._
+import twitter4j._
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await

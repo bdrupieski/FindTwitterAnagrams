@@ -1,11 +1,10 @@
 import java.util.concurrent.atomic.AtomicInteger
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
-import slick.dbio.{NoStream, DBIOAction}
-import slick.driver.H2Driver.api._
-
-import twitter4j._
 import AnagramMatchBuilder._
+import com.typesafe.scalalogging.slf4j.StrictLogging
+import slick.dbio.{DBIOAction, NoStream}
+import slick.driver.H2Driver.api._
+import twitter4j._
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global

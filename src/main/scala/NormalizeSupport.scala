@@ -1,7 +1,7 @@
 import java.util.regex.Pattern
 
 trait NormalizeSupport {
-  import java.text.Normalizer.{ normalize => jnormalize, _ }
+  import java.text.Normalizer.{normalize => jnormalize, _}
 
   val alphanumericRegex = Pattern.compile("[^a-z0-9]")
 
