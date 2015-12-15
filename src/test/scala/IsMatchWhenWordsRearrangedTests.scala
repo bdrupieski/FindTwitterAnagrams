@@ -6,12 +6,12 @@ class IsMatchWhenWordsRearrangedTests extends FunSuite {
   val isMatch: (String, String) => IsSameWhenRearrangedEnum = MatchMetrics.isMatchWhenWordsRearranged
 
   test("simple matching") {
-    assert(isMatch("this is sparta", "thisis sparta") == IsSameWhenRearrangedEnum.TRUE)
-    assert(isMatch("this is sparta", "thisissparta") == IsSameWhenRearrangedEnum.TRUE)
-    assert(isMatch("this is sparta", "sparta this is") == IsSameWhenRearrangedEnum.TRUE)
-    assert(isMatch("this is sparta", "spartathisis") == IsSameWhenRearrangedEnum.TRUE)
-    assert(isMatch("this is sparta", "spartaisthis") == IsSameWhenRearrangedEnum.TRUE)
-    assert(isMatch("this is sparta", "THIS... IS... SPARTA!!!") == IsSameWhenRearrangedEnum.TRUE)
+    assert(isMatch("this is a test", "thisis a test") == IsSameWhenRearrangedEnum.TRUE)
+    assert(isMatch("this is a test", "thisisatest") == IsSameWhenRearrangedEnum.TRUE)
+    assert(isMatch("this is a test", "a test this is") == IsSameWhenRearrangedEnum.TRUE)
+    assert(isMatch("this is a test", "atestthisis") == IsSameWhenRearrangedEnum.TRUE)
+    assert(isMatch("this is a test", "testathisis") == IsSameWhenRearrangedEnum.TRUE)
+    assert(isMatch("this is a test", "THIS... IS... A TEST!!!!") == IsSameWhenRearrangedEnum.TRUE)
   }
 
   test("real tweets") {
