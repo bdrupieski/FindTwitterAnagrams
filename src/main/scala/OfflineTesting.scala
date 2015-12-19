@@ -1,4 +1,4 @@
-import java.io.{FileInputStream, FileOutputStream, ObjectInputStream, ObjectOutputStream}
+import java.io._
 
 import slick.driver.H2Driver.api._
 import twitter4j._
@@ -6,11 +6,14 @@ import twitter4j._
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.matching.Regex
 
 object OfflineTesting extends Filters {
   def main(args: Array[String]) {
     sampleAndSaveStatusesToFile()
     loadStatusesFromFileAndSaveToDbAsTweets()
+    dumpTweetsToFile()
   }
 
   def sampleAndSaveStatusesToFile(): Unit = {
@@ -67,5 +70,26 @@ object OfflineTesting extends Filters {
     try {
       Await.result(TweetDatabaseConfig.db.run(DBIO.seq(tweetInserts)), Duration.Inf)
     } finally TweetDatabaseConfig.db.close
+  }
+
+  def dumpTweetsToFile(): Unit = {
+    val tweetsTable: TableQuery[Tweets] = TableQuery[Tweets]
+    val tweets = Await.result(TweetDatabaseConfig.db.run(tweetsTable.result), Duration.Inf)
+
+    val newlineRegex: Regex = "[\\r\\n]+"r
+
+    val tweetGroups = tweets.grouped(800000)
+
+    var i = 0
+    for (group <- tweetGroups) {
+      val fw = new FileWriter(s"tweets-$i.tsv", true)
+      try {
+        for (x <- group) {
+          val escaped = newlineRegex.replaceAllIn(x.tweetOriginalText.replaceAll("\\\\", ""), "\\\\r\\\\n")
+          fw.write(s"${x.id}\t${x.statusId}\t${x.createdAt}\t$escaped\t${x.tweetStrippedText}\t${x.tweetSortedStrippedText}\t${x.userId}\t${x.userName}\t${x.isMatched}${sys.props("line.separator")}")
+        }
+      } finally fw.close()
+      i = i + 1
+    }
   }
 }
