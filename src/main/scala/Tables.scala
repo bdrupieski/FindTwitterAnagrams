@@ -45,7 +45,8 @@ case class AnagramMatch(id: Int,
                         differentWordCountToTotalWordCount: Float,
                         isSameRearranged: IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum,
                         interestingFactor: Float,
-                        posted: Boolean = false)
+                        posted: Boolean = false,
+                        rejected: Boolean = false)
 
 class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, "ANAGRAM_MATCHES") {
 
@@ -66,6 +67,7 @@ class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, "ANAGRAM_MATCHES
   def isSameRearranged = column[IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum]("IS_SAME_REARRANGED")
   def interestingFactor = column[Float]("INTERESTING_FACTOR")
   def posted = column[Boolean]("POSTED")
+  def rejected = column[Boolean]("REJECTED")
 
   def tweet1 = foreignKey("TWEET1_FK", tweet1Id, tweets)(x => x.id,
     onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
@@ -75,7 +77,7 @@ class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, "ANAGRAM_MATCHES
   def * = (id, tweet1Id, tweet2Id, editDistanceOriginalText, editDistanceStrippedText,
     hammingDistanceStrippedText, longestCommonSubstringLengthStrippedText, wordCountDifference, totalWords,
     inverseLcsLengthToTotalLengthRatio, editDistanceToLengthRatio, differentWordCountToTotalWordCount, isSameRearranged,
-    interestingFactor, posted) <> (AnagramMatch.tupled, AnagramMatch.unapply)
+    interestingFactor, posted, rejected) <> (AnagramMatch.tupled, AnagramMatch.unapply)
 
   implicit val myEnumMapper = MappedColumnType.base[IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum, Int](
     e => e.id,
