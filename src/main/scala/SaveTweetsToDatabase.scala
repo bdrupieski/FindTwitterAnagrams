@@ -3,18 +3,16 @@ import java.util.concurrent.atomic.AtomicInteger
 import AnagramMatchBuilder._
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import slick.dbio.{DBIOAction, NoStream}
-import slick.driver.H2Driver.api._
+import slick.driver.PostgresDriver.api._
 import twitter4j._
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
-object SaveTweetsToDatabase extends StrictLogging with Filters {
+object SaveTweetsToDatabase extends StrictLogging with Filters with TweetDatabase {
 
   def main(args: Array[String]) {
-    TweetDatabaseConfig.initTables()
-
     val saveTweetsToDatabaseListener = new StatusListener() {
 
       var totalCount: AtomicInteger = new AtomicInteger()
@@ -37,7 +35,7 @@ object SaveTweetsToDatabase extends StrictLogging with Filters {
             val tweetMatchQuery = tweetsTable.filter(x => x.tweetSortedStrippedText === newTweet.tweetSortedStrippedText)
             val tweetInsert = tweetsTable += newTweet
 
-            TweetDatabaseConfig.db.run(tweetMatchQuery.result) map { (tweets: Seq[Tweet]) =>
+            tweetsDb.run(tweetMatchQuery.result) map { (tweets: Seq[Tweet]) =>
 
               val sameTweetsAlreadySavedToDb = tweets.filter(x => x.tweetStrippedText == newTweet.tweetStrippedText)
 
@@ -45,7 +43,6 @@ object SaveTweetsToDatabase extends StrictLogging with Filters {
                 logger.debug(s"ALREADY SAVED: ${newTweet.tweetOriginalText} (${newTweet.tweetStrippedText}) " +
                   s"EXISTING DUPLICATE(S): ${sameTweetsAlreadySavedToDb.map(x => s"${x.tweetOriginalText} (${x.tweetStrippedText})").mkString(" ")}")
               } else {
-
                 val inserts = ListBuffer[DBIOAction[_, NoStream, Effect.Write]](tweetInsert)
 
                 if (tweets.nonEmpty) {
@@ -59,7 +56,7 @@ object SaveTweetsToDatabase extends StrictLogging with Filters {
                 }
 
                 logger.debug(s"inserting (${savedTweets.get()}): ${newTweet.tweetOriginalText}")
-                TweetDatabaseConfig.db.run(DBIO.seq(inserts: _*).transactionally)
+                tweetsDb.run(DBIO.seq(inserts: _*).transactionally)
                 savedTweets.incrementAndGet()
               }
             }
@@ -67,20 +64,21 @@ object SaveTweetsToDatabase extends StrictLogging with Filters {
         }
       }
       def onDeletionNotice(statusDeletionNotice: StatusDeletionNotice): Unit = {
-        logger.info(s"STATUS DELETED: ${statusDeletionNotice.getStatusId}")
+        logger.info(s"status deleted: ${statusDeletionNotice.getStatusId}")
       }
       def onTrackLimitationNotice(numberOfLimitedStatuses: Int): Unit = {
-        logger.warn(s"TRACK LIMITATION NOTICE: $numberOfLimitedStatuses")
+        logger.warn(s"track limitation notice: $numberOfLimitedStatuses")
       }
       def onException(ex: Exception): Unit = {
+        logger.error("status listener error:")
         logger.error(ex.getMessage)
         logger.error(ex.getStackTraceString)
       }
       def onScrubGeo(arg0: Long, arg1: Long): Unit = {
-        logger.info(s"GEO SCRUBBED: $arg0, $arg1")
+        logger.info(s"geo scrubbed: $arg0, $arg1")
       }
       def onStallWarning(warning: StallWarning): Unit = {
-        logger.warn(s"STALL WARNING: ${warning.toString}")
+        logger.warn(s"stall warning: ${warning.toString}")
       }
     }
 
@@ -93,7 +91,7 @@ object SaveTweetsToDatabase extends StrictLogging with Filters {
       twitterStream.cleanUp()
       twitterStream.shutdown()
     } finally {
-      TweetDatabaseConfig.db.close
+      tweetsDb.close
     }
   }
 }

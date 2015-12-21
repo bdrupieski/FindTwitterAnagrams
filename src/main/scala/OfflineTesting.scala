@@ -1,6 +1,6 @@
 import java.io._
 
-import slick.driver.H2Driver.api._
+import slick.driver.PostgresDriver.api._
 import twitter4j._
 
 import scala.collection.mutable.ArrayBuffer
@@ -9,7 +9,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.matching.Regex
 
-object OfflineTesting extends Filters {
+object OfflineTesting extends Filters with TweetDatabase {
   def main(args: Array[String]) {
     sampleAndSaveStatusesToFile()
     loadStatusesFromFileAndSaveToDbAsTweets()
@@ -49,7 +49,6 @@ object OfflineTesting extends Filters {
   }
 
   def loadStatusesFromFileAndSaveToDbAsTweets(): Unit = {
-    TweetDatabaseConfig.initTables()
     val tweetsTable: TableQuery[Tweets] = TableQuery[Tweets]
 
     def load(filename: String): ArrayBuffer[twitter4j.Status] = {
@@ -68,16 +67,15 @@ object OfflineTesting extends Filters {
     val tweetInserts = tweetsTable ++= tweetsToInsert
 
     try {
-      Await.result(TweetDatabaseConfig.db.run(DBIO.seq(tweetInserts)), Duration.Inf)
-    } finally TweetDatabaseConfig.db.close
+      Await.result(tweetsDb.run(DBIO.seq(tweetInserts)), Duration.Inf)
+    } finally tweetsDb.close
   }
 
   def dumpTweetsToFile(): Unit = {
     val tweetsTable: TableQuery[Tweets] = TableQuery[Tweets]
-    val tweets = Await.result(TweetDatabaseConfig.db.run(tweetsTable.result), Duration.Inf)
+    val tweets = Await.result(tweetsDb.run(tweetsTable.result), Duration.Inf)
 
-    val newlineRegex: Regex = "[\\r\\n]+"r
-
+    val newlineRegex = new Regex("[\\r\\n]+")
     val tweetGroups = tweets.grouped(800000)
 
     var i = 0

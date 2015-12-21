@@ -1,7 +1,7 @@
 import java.sql.Timestamp
 import java.util.UUID
 
-import slick.driver.H2Driver.api._
+import slick.driver.PostgresDriver.api._
 
 case class Tweet(id: UUID,
                  statusId: Long,
@@ -13,22 +13,22 @@ case class Tweet(id: UUID,
                  userName: String,
                  isMatched: Boolean = false)
 
-class Tweets(tag: Tag) extends Table[Tweet](tag, "TWEETS") {
+class Tweets(tag: Tag) extends Table[Tweet](tag, Some("public"), "tweets") {
 
-  def id: Rep[UUID] = column[UUID]("ID", O.PrimaryKey)
-  def statusId: Rep[Long] = column[Long]("STATUS_ID")
-  def createdAt: Rep[Timestamp] = column[Timestamp]("CREATED_AT")
-  def tweetOriginalText: Rep[String] = column[String]("ORIGINAL_TEXT", O.Length(200))
-  def tweetStrippedText: Rep[String] = column[String]("STRIPPED_TEXT", O.Length(200))
-  def tweetSortedStrippedText: Rep[String] = column[String]("STRIPPED_SORTED_TEXT", O.Length(200))
-  def userId: Rep[Long] = column[Long]("USER_ID")
-  def userName: Rep[String] = column[String]("USER_NAME", O.Length(50))
-  def isMatched: Rep[Boolean] = column[Boolean]("IS_MATCHED")
+  def id: Rep[UUID] = column[UUID]("id", O.PrimaryKey)
+  def statusId: Rep[Long] = column[Long]("status_id")
+  def createdAt: Rep[Timestamp] = column[Timestamp]("created_at")
+  def tweetOriginalText: Rep[String] = column[String]("original_text")
+  def tweetStrippedText: Rep[String] = column[String]("stripped_text")
+  def tweetSortedStrippedText: Rep[String] = column[String]("stripped_sorted_text")
+  def userId: Rep[Long] = column[Long]("user_id")
+  def userName: Rep[String] = column[String]("user_name")
+  def isMatched: Rep[Boolean] = column[Boolean]("is_matched")
 
   def * = (id, statusId, createdAt, tweetOriginalText, tweetStrippedText, tweetSortedStrippedText,
     userId, userName, isMatched) <> (Tweet.tupled, Tweet.unapply)
 
-  def idx = index("STRIPPED_SORTED_TEXT_INDEX", tweetSortedStrippedText)
+  def idx = index("stripped_sorted_text_index", tweetSortedStrippedText)
 }
 
 case class AnagramMatch(id: Int,
@@ -48,30 +48,29 @@ case class AnagramMatch(id: Int,
                         posted: Boolean = false,
                         rejected: Boolean = false)
 
-class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, "ANAGRAM_MATCHES") {
-
+class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, Some("public"), "anagram_matches") {
   val tweets = TableQuery[Tweets]
 
-  def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-  def tweet1Id: Rep[UUID] = column[UUID]("TWEET1_ID")
-  def tweet2Id: Rep[UUID] = column[UUID]("TWEET2_ID")
-  def editDistanceOriginalText = column[Int]("EDIT_DISTANCE_ORIGINAL_TEXT")
-  def editDistanceStrippedText = column[Int]("EDIT_DISTANCE_STRIPPED_TEXT")
-  def hammingDistanceStrippedText = column[Int]("HAMMING_DISTANCE_STRIPPED_TEXT")
-  def longestCommonSubstringLengthStrippedText = column[Int]("LONGEST_COMMON_SUBSTRING_LENGTH_STRIPPED_TEXT")
-  def wordCountDifference = column[Int]("WORD_COUNT_DIFFERENCE")
-  def totalWords = column[Int]("TOTAL_WORDS")
-  def inverseLcsLengthToTotalLengthRatio = column[Float]("INVERSE_LCS_LENGTH_TO_TOTAL_LENGTH_RATIO")
-  def editDistanceToLengthRatio = column[Float]("EDIT_DISTANCE_TO_LENGTH_RATIO")
-  def differentWordCountToTotalWordCount = column[Float]("DIFFERENT_WORD_COUNT_TO_TOTAL_WORD_COUNT_RATIO")
-  def isSameRearranged = column[IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum]("IS_SAME_REARRANGED")
-  def interestingFactor = column[Float]("INTERESTING_FACTOR")
-  def posted = column[Boolean]("POSTED")
-  def rejected = column[Boolean]("REJECTED")
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def tweet1Id: Rep[UUID] = column[UUID]("tweet1_id")
+  def tweet2Id: Rep[UUID] = column[UUID]("tweet2_id")
+  def editDistanceOriginalText = column[Int]("edit_distance_original_text")
+  def editDistanceStrippedText = column[Int]("edit_distance_stripped_text")
+  def hammingDistanceStrippedText = column[Int]("hamming_distance_stripped_text")
+  def longestCommonSubstringLengthStrippedText = column[Int]("longest_common_substring_length_stripped_text")
+  def wordCountDifference = column[Int]("word_count_difference")
+  def totalWords = column[Int]("total_words")
+  def inverseLcsLengthToTotalLengthRatio = column[Float]("inverse_lcs_length_to_total_length_ratio")
+  def editDistanceToLengthRatio = column[Float]("edit_distance_to_length_ratio")
+  def differentWordCountToTotalWordCount = column[Float]("different_word_count_to_total_word_count_ratio")
+  def isSameRearranged = column[IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum]("is_same_rearranged")
+  def interestingFactor = column[Float]("interesting_factor")
+  def posted = column[Boolean]("posted")
+  def rejected = column[Boolean]("rejected")
 
-  def tweet1 = foreignKey("TWEET1_FK", tweet1Id, tweets)(x => x.id,
+  def tweet1 = foreignKey("anagram_matches_tweet1_id_fkey", tweet1Id, tweets)(x => x.id,
     onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
-  def tweet2 = foreignKey("TWEET2_FK", tweet2Id, tweets)(x => x.id,
+  def tweet2 = foreignKey("anagram_matches_tweet2_id_fkey", tweet2Id, tweets)(x => x.id,
     onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
 
   def * = (id, tweet1Id, tweet2Id, editDistanceOriginalText, editDistanceStrippedText,
@@ -88,4 +87,3 @@ class AnagramMatches(tag: Tag) extends Table[AnagramMatch](tag, "ANAGRAM_MATCHES
     }
   )
 }
-
