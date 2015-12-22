@@ -1,6 +1,8 @@
 import java.util.concurrent.atomic.AtomicInteger
+
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import twitter4j._
+
 import scala.concurrent.duration._
 
 object ListenForAnagrams extends StrictLogging with TweetDatabase {

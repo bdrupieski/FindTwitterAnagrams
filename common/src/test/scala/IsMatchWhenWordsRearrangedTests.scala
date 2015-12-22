@@ -1,6 +1,5 @@
-import matching.IsSameWhenRearrangedEnum
-import IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum
-import matching.MatchMetrics
+import matching.IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum
+import matching.{IsSameWhenRearrangedEnum, MatchMetrics}
 import org.scalatest.FunSuite
 
 class IsMatchWhenWordsRearrangedTests extends FunSuite {

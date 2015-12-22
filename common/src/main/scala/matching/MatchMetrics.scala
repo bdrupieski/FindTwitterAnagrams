@@ -2,7 +2,7 @@ package matching
 
 import matching.IsSameWhenRearrangedEnum.IsSameWhenRearrangedEnum
 
-object MatchMetrics {
+trait MatchMetrics {
   // Adapted from https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
   def demerauLevenshteinDistance(a: String, b: String): Int = {
 
@@ -122,3 +122,5 @@ object MatchMetrics {
     }
   }
 }
+
+object MatchMetrics extends MatchMetrics

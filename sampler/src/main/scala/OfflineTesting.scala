@@ -1,15 +1,14 @@
 import java.io._
 
 import matching.Filters
-import models.Tweet
-import tables.Tweets
+import models._
 import slick.driver.PostgresDriver.api._
+import tables.Tweets
 import twitter4j._
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.matching.Regex
 
 object OfflineTesting extends Filters with TweetDatabase {

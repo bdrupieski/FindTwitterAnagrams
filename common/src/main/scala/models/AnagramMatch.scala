@@ -20,5 +20,3 @@ case class AnagramMatch(id: Int,
                         interestingFactor: Float,
                         posted: Boolean = false,
                         rejected: Boolean = false)
-
-

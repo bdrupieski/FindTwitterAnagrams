@@ -1,16 +1,13 @@
+import CommonSettings._
+
 name := "FindTwitterAnagrams"
 
 version := "1.0"
 
-scalaVersion := "2.11.7"
+scalaVersion := Dependencies.scala
 
 mainClass in Compile := Some("ListenForAnagrams")
 
-libraryDependencies += "org.twitter4j" % "twitter4j-stream" % "4.0.4"
-libraryDependencies += "com.typesafe" % "config" % "1.3.0"
-libraryDependencies += "com.typesafe.slick" %% "slick" % "3.1.1"
-libraryDependencies += "org.postgresql" % "postgresql" % "9.4-1206-jdbc4"
-libraryDependencies += "com.typesafe.slick" %% "slick-hikaricp" % "3.1.0"
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.4" % "test"
-libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2"
-libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.3"
+lazy val common = BaseProject("common") settings (libraryDependencies ++= Dependencies.allDependencies)
+
+lazy val sampler = (BaseProject("sampler") settings (libraryDependencies ++= Dependencies.allDependencies)) dependsOn common

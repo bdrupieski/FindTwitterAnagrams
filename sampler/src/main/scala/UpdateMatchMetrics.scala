@@ -1,12 +1,12 @@
-import matching.MatchMetrics._
-import tables.{AnagramMatches, Tweets}
 import slick.driver.PostgresDriver.api._
+import tables._
+import matching.MatchMetrics
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
-object UpdateMatchMetrics extends TweetDatabase {
+object UpdateMatchMetrics extends TweetDatabase with MatchMetrics {
   def main(args: Array[String]) {
 
     val tweetsTable: TableQuery[Tweets] = TableQuery[Tweets]

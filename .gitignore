@@ -60,12 +60,11 @@ lib_managed/
 src_managed/
 project/boot/
 project/plugins/project/
+common/target
+sampler/target
 
 # Scala-IDE specific
 .scala_dependencies
 .worksheet
 
 twitterapi.conf
-tweetsdb.h2.db
-tweetsdb.lock.db
-tweetsdb.trace.db

@@ -1,18 +1,17 @@
 import java.util.UUID
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
-import matching.MatchMetrics._
-import matching.{Filters, NormalizeSupport}
-import models.{AnagramMatch, Tweet}
-import slick.dbio.{DBIOAction, NoStream}
-import tables.{AnagramMatches, Tweets}
-import twitter4j.Status
-import slick.driver.PostgresDriver.api._
+import matching._
+import models._
+import tables._
 
+import com.typesafe.scalalogging.slf4j.StrictLogging
+import slick.dbio.{DBIOAction, NoStream}
+import slick.driver.PostgresDriver.api._
+import twitter4j.Status
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object FindAndSaveMatches extends StrictLogging with Filters with TweetDatabase {
+object FindAndSaveMatches extends StrictLogging with Filters with MatchMetrics with TweetDatabase {
 
   val tweetsTable: TableQuery[Tweets] = TableQuery[Tweets]
   val anagramMatchesTable: TableQuery[AnagramMatches] = TableQuery[AnagramMatches]
