@@ -1,4 +1,5 @@
-import MatchMetrics._
+import matching.MatchMetrics._
+import tables.{AnagramMatches, Tweets}
 import slick.driver.PostgresDriver.api._
 
 import scala.concurrent.Await

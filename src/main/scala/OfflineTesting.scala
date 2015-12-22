@@ -1,5 +1,8 @@
 import java.io._
 
+import matching.Filters
+import models.Tweet
+import tables.Tweets
 import slick.driver.PostgresDriver.api._
 import twitter4j._
 
@@ -62,7 +65,7 @@ object OfflineTesting extends Filters with TweetDatabase {
     val filteredStatuses = statuses.filter(statusFilter)
 
     val tweetsToInsert: ArrayBuffer[Tweet] = filteredStatuses
-      .map(getTweetFromStatus)
+      .map(FindAndSaveMatches.buildTweet)
       .filter(tweetFilter)
     val tweetInserts = tweetsTable ++= tweetsToInsert
 

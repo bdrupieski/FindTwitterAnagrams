@@ -1,3 +1,4 @@
+import matching.MatchMetrics
 import org.scalatest.FunSuite
 
 class LongestCommonSubstringLengthTests extends FunSuite {

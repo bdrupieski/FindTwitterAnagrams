@@ -1,16 +1,9 @@
-import java.util.UUID
+package matching
 
+import models.{AnagramMatch, Tweet}
 import twitter4j.Status
 
 trait Filters {
-
-  def getTweetFromStatus(status: Status): Tweet = {
-    val strippedText: String = NormalizeSupport.normalize(status.getText)
-    val sortedStrippedText: String = strippedText.sorted
-
-    Tweet(UUID.randomUUID(), status.getId, new java.sql.Timestamp(status.getCreatedAt.getTime), status.getText, strippedText,
-      sortedStrippedText, status.getUser.getId, status.getUser.getScreenName)
-  }
 
   def statusFilter(status: Status): Boolean = {
 

@@ -1,3 +1,5 @@
+package matching
+
 import java.util.regex.Pattern
 
 trait NormalizeSupport {

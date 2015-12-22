@@ -1,3 +1,4 @@
+import matching.NormalizeSupport
 import org.scalatest.FunSuite
 
 class NormalizeStringTests extends FunSuite with NormalizeSupport {

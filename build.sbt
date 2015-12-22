@@ -4,7 +4,7 @@ version := "1.0"
 
 scalaVersion := "2.11.7"
 
-mainClass in Compile := Some("SaveTweetsToDatabase")
+mainClass in Compile := Some("ListenForAnagrams")
 
 libraryDependencies += "org.twitter4j" % "twitter4j-stream" % "4.0.4"
 libraryDependencies += "com.typesafe" % "config" % "1.3.0"
