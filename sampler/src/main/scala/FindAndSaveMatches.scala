@@ -1,4 +1,5 @@
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
 
 import matching._
 import models._
@@ -16,9 +17,7 @@ object FindAndSaveMatches extends StrictLogging with Filters with MatchMetrics w
   val tweetsTable: TableQuery[Tweets] = TableQuery[Tweets]
   val anagramMatchesTable: TableQuery[AnagramMatches] = TableQuery[AnagramMatches]
 
-  def processStatus(status: Status): Boolean = {
-    var savedTweet = false
-
+  def processStatus(status: Status, savedCount: AtomicInteger): Unit = {
     if (statusFilter(status)) {
       val newTweet = buildTweet(status)
       if (tweetFilter(newTweet)) {
@@ -50,13 +49,11 @@ object FindAndSaveMatches extends StrictLogging with Filters with MatchMetrics w
 
             logger.debug(s"inserting: ${newTweet.tweetOriginalText}")
             tweetsDb.run(DBIO.seq(inserts: _*).transactionally)
-            savedTweet = true
+            savedCount.incrementAndGet()
           }
         }
       }
     }
-
-    savedTweet
   }
 
   def buildTweet(status: Status): Tweet = {

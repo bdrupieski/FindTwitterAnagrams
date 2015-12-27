@@ -20,11 +20,7 @@ object ListenForAnagrams extends StrictLogging with TweetDatabase {
           logger.info(s"Processed $totalCount total tweets. Saved $savedTweets so far.")
         }
 
-        val saved = FindAndSaveMatches.processStatus(status)
-
-        if (saved) {
-          savedTweets.incrementAndGet()
-        }
+        FindAndSaveMatches.processStatus(status, savedTweets)
       }
 
       def onDeletionNotice(statusDeletionNotice: StatusDeletionNotice): Unit = {
